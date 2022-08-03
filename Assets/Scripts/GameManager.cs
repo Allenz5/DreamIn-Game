@@ -34,9 +34,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text PlayerNameText;
     public TMP_Text EndText;
     public TMP_Text TimerText;
-    public TMP_Text ObjectInfoText;
-
-    public Button infoShareButton;
 
     private PhotonView GM_PhotonView;
     public GameData gameData;
@@ -230,12 +227,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 
     /// <summary>
-    /// show infopanel according to the input obj's info
+    /// show inf opanel according to the input obj's info
     /// </summary>
     /// <param name="obj"></param>
     public void ShowInfoPanel(Object obj)
     {
-        ObjectInfoText.text = obj.objectInfo;
+        objectInfoPanel.GetComponent<ObjectPanel>().SetText(obj.objectInfo);
 
         //check whether the info is in the clue panel
         bool flag = false;
@@ -244,18 +241,17 @@ public class GameManager : MonoBehaviourPunCallbacks
             if (obj.objectInfo == clue)
             {
                 flag = true;
+                break;
             }
         }
-        //if so share button in object panel is non interactive
+        //if exist, set share button in object panel to non interactive
         if (flag)
         {
-            infoShareButton.interactable = false;
-            infoShareButton.GetComponentInChildren<TMP_Text>().text = "Shared";
+            objectInfoPanel.GetComponent<ObjectPanel>().SetSharedButton(false, "Shared");
         }
         else
         {
-            infoShareButton.interactable = true;
-            infoShareButton.GetComponentInChildren<TMP_Text>().text = "Share";
+            objectInfoPanel.GetComponent<ObjectPanel>().SetSharedButton(true,"Share");
         }
         objectInfoPanel.SetActive(true);
     }
@@ -370,7 +366,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
     public void ShareButton()
     {
-        cluePanel.GetComponent<CluePanel>().AddClue(ObjectInfoText.text);
+        cluePanel.GetComponent<CluePanel>().AddClue(objectInfoPanel.GetComponent<ObjectPanel>().GetText());
     }
     public void SelectResultButton()
     {
