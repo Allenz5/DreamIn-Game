@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject timer;
     public GameObject currentMap;
     public GameObject cluePanel;
+    public GameObject LastTipPanel;
 
     public TMP_Text PlayerInfoText;
     public TMP_Text PlayerNameText;
@@ -358,10 +359,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         timer.SetActive(true);
         StartCountTime(countTime);
     }
-
     public void EndLevelButton()
     {
-        if (mapIndex == -1) return;
+        if (mapIndex == -1)
+        {
+            Debug.Log("This is the last Level");
+            LastTipPanel.SetActive(true);
+            return;
+        }
         EndCountTime();
     }
     public void ShareButton()
