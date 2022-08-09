@@ -1,0 +1,23 @@
+{
+  "status": "OK",
+  "infos": [
+    {
+      "id": 1,
+      "name": "data1",
+      "players_num": 1,
+      "status": 1
+    },
+    {
+      "id": 2,
+      "name": "data2",
+      "players_num": 1,
+      "status": 1
+    },
+    {
+      "id": 3,
+      "name": "data3",
+      "players_num": 1,
+      "status": 1
+    }
+  ]
+}

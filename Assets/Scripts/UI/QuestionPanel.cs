@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Photon.Pun;
 using TMPro;
 
 public class QuestionPanel : MonoBehaviour
@@ -24,11 +23,8 @@ public class QuestionPanel : MonoBehaviour
     private List<GameObject> itemList;
     Dictionary<string, int> selectData;
 
-    private PhotonView photonView;
-
     private void Awake()
     {
-        photonView = GetComponent<PhotonView>();
         selectData = new Dictionary<string, int>();
     }
     private void OnEnable()
@@ -39,9 +35,9 @@ public class QuestionPanel : MonoBehaviour
 
     private void Update()
     {
-        if (PhotonNetwork.IsMasterClient && playerSelectedNum == playerNum)
+        if (playerSelectedNum == playerNum)
         {
-            photonView.RPC("RPCShowSelectResult", RpcTarget.All);
+            ShowSelectResult();
             playerSelectedNum = 0;
         }
     }
@@ -135,12 +131,11 @@ public class QuestionPanel : MonoBehaviour
 
     void FinishSelect()
     {
-        photonView.RPC("RPCAddPlayerNum", RpcTarget.All);
+        AddPlayerNum();
         if (selectedAnswer != null)
-            photonView.RPC("RPCAddSelectData", RpcTarget.All, selectedAnswer);
+            AddSelectData(selectedAnswer);
     }
-    [PunRPC]
-    void RPCShowSelectResult()
+    void ShowSelectResult()
     {
         GameObject maxItem = null;
         int maxNum = 0;
@@ -184,14 +179,12 @@ public class QuestionPanel : MonoBehaviour
         StopCountTime();
     }
 
-    [PunRPC]
-    void RPCAddPlayerNum()
+    void AddPlayerNum()
     {
         playerSelectedNum++;
     }
 
-    [PunRPC]
-    void RPCAddSelectData(string ans)
+    void AddSelectData(string ans)
     {
         selectData[ans]++;
     }
@@ -201,25 +194,21 @@ public class QuestionPanel : MonoBehaviour
     IEnumerator IECountTime;
     void StartCountTime(float t)
     {
-        if (PhotonNetwork.IsMasterClient)
-        {
-            countTime = (int)(t * 60);
-            IECountTime = CountTime();
-            StartCoroutine(IECountTime);
-        }
+        countTime = (int)(t * 60);
+        IECountTime = CountTime();
+        StartCoroutine(IECountTime);
     }
 
     void StopCountTime()
     {
-        if (PhotonNetwork.IsMasterClient)
-            StopCoroutine(IECountTime);
+        StopCoroutine(IECountTime);
     }
     IEnumerator CountTime()
     {
         while (true)
         {
             countTime -= 1;
-            photonView.RPC("RPCSetTimerText", RpcTarget.All, countTime);
+            SetTimerText(countTime);
             if (countTime == 0)
             {
                 FinishSelect();
@@ -229,8 +218,7 @@ public class QuestionPanel : MonoBehaviour
         }
     }
 
-    [PunRPC]
-    void RPCSetTimerText(int t)
+    void SetTimerText(int t)
     {
         string s = "";
         if (t >= 3600)

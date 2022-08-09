@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Photon.Pun;
 using TMPro;
 
 
@@ -28,7 +27,7 @@ public class Object : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("Player")&& collision.gameObject.GetComponent<PlayerScript>().photonView.IsMine)
+        if(collision.CompareTag("Player"))
         {
             if (objectInfo == "") return;
             tipText.SetActive(true);
@@ -38,7 +37,7 @@ public class Object : MonoBehaviour
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (objectInfo == "") return;
-        if(collision.CompareTag("Player")&& collision.gameObject.GetComponent<PlayerScript>().photonView.IsMine)
+        if(collision.CompareTag("Player"))
         {
             tipText.SetActive(false);
             isInterable = false;

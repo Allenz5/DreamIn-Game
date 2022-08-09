@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
 using TMPro;
 
 public class CluePanel : MonoBehaviour
@@ -12,13 +11,7 @@ public class CluePanel : MonoBehaviour
     List<GameObject> itemList = new List<GameObject>();
     public List<string> clueList = new List<string>();
 
-    public PhotonView photonView;
     public void AddClue(string clue)
-    {
-        photonView.RPC("RPCAddClue", RpcTarget.All,clue);
-    }
-    [PunRPC]
-    public void RPCAddClue(string clue)
     {
         if(itemList.Count==0)
         {

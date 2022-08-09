@@ -16,7 +16,7 @@ public class SelectPanel : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(GetNameAndID());
+       StartCoroutine(GetNameAndID());
     }
     /// <summary>
     /// previous method, for old script data format
@@ -138,27 +138,11 @@ public class SelectPanel : MonoBehaviour
 
     IEnumerator GetNameAndID()
     {
-        string url = "https://api.dreamin.land/true_info_get/";//get scripts info which status==1;
-        //string url = "https://api.dreamin.land/info_get/";//get all scripts info
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
-        {
-            yield return webRequest.SendWebRequest();
+        var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, "ScriptData.json"));
+        UnityWebRequest www = UnityWebRequest.Get(uri);
+        yield return www.SendWebRequest();
 
-            if (webRequest.result == UnityWebRequest.Result.ProtocolError || webRequest.result == UnityWebRequest.Result.ConnectionError)
-            {
-                Debug.LogError(webRequest.error + "\n");
-            }
-            else
-            {
-#if UNITY_EDITOR
-                //Save a data backup for debug
-                string savePath = "Assets/JsonData/ScriptData.json";
-                File.WriteAllText(savePath, Regex.Unescape(webRequest.downloadHandler.text));
-#endif
-
-                sj = JsonMapper.ToObject<ScriptsJsonData>(webRequest.downloadHandler.text);
-                CreateScriptItem(sj.infos);
-            }
-        }
+        sj = JsonMapper.ToObject<ScriptsJsonData>(www.downloadHandler.text);
+        CreateScriptItem(sj.infos);
     }
 }
