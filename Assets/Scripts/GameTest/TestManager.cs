@@ -50,8 +50,8 @@ public class TestManager: MonoBehaviourPunCallbacks
 
         downloadObjects = new List<GameObject>();
 
-        startButton.SetActive(true);
-        scriptScroll.SetActive(true);
+        //startButton.SetActive(true);
+        //scriptScroll.SetActive(true);
     }
 
     void SetPlayerInfoPanel(GameCharacter character)
@@ -256,13 +256,21 @@ public class TestManager: MonoBehaviourPunCallbacks
 
     public void QuestionButton()
     {
-        questionPanel.gameObject.SetActive(true);
-        questionPanel.GetComponent<t_QuestionPanel>().QuestionText.text = gameData.map[mapIndex].question;
-        questionPanel.GetComponent<t_QuestionPanel>().AnswerText.text = "-----------------------------------------\n";
-        for (int i = 0; i < gameData.map[mapIndex].answers.Count; i++)
+        try
         {
-            questionPanel.GetComponent<t_QuestionPanel>().AnswerText.text += gameData.map[mapIndex].answers[i] + "\n";
-            questionPanel.GetComponent<t_QuestionPanel>().AnswerText.text += "-----------------------------------------\n";
+            questionPanel.gameObject.SetActive(true);
+            questionPanel.GetComponent<t_QuestionPanel>().QuestionText.text = gameData.map[mapIndex].question;
+            questionPanel.GetComponent<t_QuestionPanel>().AnswerText.text = "-----------------------------------------\n";
+            for (int i = 0; i < gameData.map[mapIndex].answers.Count; i++)
+            {
+                questionPanel.GetComponent<t_QuestionPanel>().AnswerText.text += gameData.map[mapIndex].answers[i] + "\n";
+                questionPanel.GetComponent<t_QuestionPanel>().AnswerText.text += "-----------------------------------------\n";
+            }
+        }
+        catch
+        {
+            questionPanel.GetComponent<t_QuestionPanel>().QuestionText.text = "";
+            Debug.Log("There is no question data!");
         }
 
     }
