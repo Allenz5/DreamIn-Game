@@ -30,6 +30,7 @@ public class GameManager :MonoBehaviour
     public GameObject currentMap;
     public GameObject cluePanel;
     public GameObject LastTipPanel;
+    public GameObject ThankPanel;
 
     public TMP_Text PlayerInfoText;
     public TMP_Text PlayerNameText;
@@ -47,7 +48,7 @@ public class GameManager :MonoBehaviour
 
     public void Start()
     {    
-    
+        
     }
 
 void InitializedGame()
@@ -174,7 +175,7 @@ void InitializedGame()
             //Set and show end text
             EndText.text = gameData.map[mapIndex-1].end;
             EndText.transform.parent.parent.gameObject.SetActive(true);
-
+            
             mapIndex = -1;
         }
         else
@@ -314,7 +315,10 @@ void InitializedGame()
     /// </summary>
     public void CloseEndPanel()
     {
-
+        if(mapIndex==-1)
+        {
+            ThankPanel.gameObject.SetActive(true);
+        }
     }
 
 

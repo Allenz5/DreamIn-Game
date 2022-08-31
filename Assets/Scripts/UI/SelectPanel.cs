@@ -12,6 +12,11 @@ public class SelectPanel : MonoBehaviour
 {
     public GameObject content;
     public GameObject item;
+
+    public GameObject story1;
+    public GameObject story2;
+    public GameObject story3;
+
     private ScriptsJsonData sj;
 
     private void Start()
@@ -34,11 +39,11 @@ public class SelectPanel : MonoBehaviour
 
     //        string[] scriptText = scripts[i].name.Split(',');
 
-    //        if (scriptText.Length>1)
+    //        if (scriptText.Length > 1)
     //        {
     //            itemList[i].transform.GetChild(0).GetComponent<TMP_Text>().text = scriptText[0];
-    //            if(scriptText[1]=="1")
-    //                itemList[i].transform.GetChild(1).GetComponent<TMP_Text>().text = scriptText[1]+ " Player";
+    //            if (scriptText[1] == "1")
+    //                itemList[i].transform.GetChild(1).GetComponent<TMP_Text>().text = scriptText[1] + " Player";
     //            else
     //                itemList[i].transform.GetChild(1).GetComponent<TMP_Text>().text = scriptText[1] + " Players";
     //        }
@@ -53,12 +58,11 @@ public class SelectPanel : MonoBehaviour
     //            GameObject a = GameObject.Instantiate(item) as GameObject;
     //            a.transform.parent = content.transform; //Set as a Content's child
     //            itemList.Add(a);
-    //            RectTransform t = itemList[i - 1].GetComponent<RectTransform>(); 
+    //            RectTransform t = itemList[i - 1].GetComponent<RectTransform>();
 
     //            a.GetComponent<RectTransform>().localScale = t.localScale;
     //            a.GetComponent<RectTransform>().localPosition =
-    //             new Vector3(t.localPosition.x, t.localPosition.y - t.rect.height-50, t.localPosition.z);
-
+    //             new Vector3(t.localPosition.x, t.localPosition.y - t.rect.height - 50, t.localPosition.z);
 
     //            string[] text = scripts[i].name.Split(',');
     //            if (text.Length > 1)
@@ -77,7 +81,7 @@ public class SelectPanel : MonoBehaviour
     //        }
     //        //Update content height
     //        content.GetComponent<RectTransform>().sizeDelta =
-    //          new Vector2(content.GetComponent<RectTransform>().sizeDelta.x, itemList.Count * (item.GetComponent<RectTransform>().rect.height+50));
+    //          new Vector2(content.GetComponent<RectTransform>().sizeDelta.x, itemList.Count * (item.GetComponent<RectTransform>().rect.height + 50));
     //    }
     //    else
     //    {
@@ -115,7 +119,6 @@ public class SelectPanel : MonoBehaviour
                 a.GetComponent<RectTransform>().localPosition =
                  new Vector3(t.localPosition.x, t.localPosition.y - t.rect.height - 50, t.localPosition.z);
 
-
                 itemList[i].transform.GetChild(0).GetComponent<TMP_Text>().text = infos[i].name;
                 int num = infos[i].players_num;
                 if (playerNum > 1)
@@ -143,6 +146,17 @@ public class SelectPanel : MonoBehaviour
         yield return www.SendWebRequest();
 
         sj = JsonMapper.ToObject<ScriptsJsonData>(www.downloadHandler.text);
-        CreateScriptItem(sj.infos);
+        //CreateScriptItem(sj.infos);
+        story1.transform.GetChild(0).GetComponent<TMP_Text>().text = sj.infos[0].name;
+        story1.transform.GetChild(1).GetComponent<TMP_Text>().text = sj.infos[0].players_num.ToString();
+        story1.GetComponent<ScriptItem>().gameID = sj.infos[0].id.ToString();
+
+        story2.transform.GetChild(0).GetComponent<TMP_Text>().text = sj.infos[1].name;
+        story2.transform.GetChild(1).GetComponent<TMP_Text>().text = sj.infos[1].players_num.ToString();
+        story2.GetComponent<ScriptItem>().gameID = sj.infos[1].id.ToString();
+
+        story3.transform.GetChild(0).GetComponent<TMP_Text>().text = sj.infos[2].name;
+        story3.transform.GetChild(1).GetComponent<TMP_Text>().text = sj.infos[2].players_num.ToString();
+        story3.GetComponent<ScriptItem>().gameID = sj.infos[2].id.ToString();
     }
 }
