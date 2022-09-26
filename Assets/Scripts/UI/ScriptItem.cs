@@ -15,7 +15,6 @@ public class ScriptItem : MonoBehaviour
 
     public void ScriptButton()
     {
-        //Get data from backend with gameID
-        GameObject.Find("GameManager").GetComponent<GameManager>().DownLoadGameData(gameID);
+       
     }
 }

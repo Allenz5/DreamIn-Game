@@ -17,7 +17,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public GameObject startButton;
     public GameObject finishButton;
     public GameObject cluesButton;
-    public GameObject scriptScroll;
     public GameObject gameCanvas;
     public GameObject objects;
     public GameObject colliders;
@@ -38,7 +37,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private PhotonView GM_PhotonView;
     public GameData gameData;
-    private string gameDataID;
     private GameObject localPlayer;
 
     private int countTime = 0;
@@ -49,6 +47,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void Start()
     {
         GM_PhotonView = GetComponent<PhotonView>();
+        StartCoroutine(GetGameData());
 
         //check whether to join the game midway
         Invoke("TestIfGameStart", 1);
@@ -57,6 +56,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     /// <summary>
     /// check whether to join the game midway
     /// </summary>
+    /// 
     void TestIfGameStart()
     {
         GameObject testflag = GameObject.FindGameObjectWithTag("GameStartFlag");
@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             readyButton.SetActive(false);
             watchButton.SetActive(true);
-            StartCoroutine(GetGameData(testflag.GetComponent<DataID>().dataId));
+            InitializeScene();
         }
         else
         {
@@ -72,7 +72,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             watchButton.SetActive(true);
         }
     }
-
+    
+    
     [PunRPC]
     void RPCInitializedGame()
     {
@@ -86,7 +87,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         cluesButton.SetActive(true);
     }
-
+    
     public void InitializeScene()
     {
         //set Player
@@ -108,9 +109,6 @@ public class GameManager : MonoBehaviourPunCallbacks
             mapIndex = 0;
             UpdateMap(mapIndex);
         }
-
-        if(PhotonNetwork.IsMasterClient)
-            startButton.SetActive(true);
     }
 
     void UpdateMap(int index)
@@ -287,13 +285,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         localPlayer.GetComponent<PlayerScript>().SetPlayerName("Watcher");
         Camera.main.GetComponent<CameraFollow>().SetTarget(localPlayer);
 
+        //now all players can move
+        GM_PhotonView.RPC("SetPlayerMove", RpcTarget.All, true);
+
+        if (PhotonNetwork.IsMasterClient)
+            startButton.SetActive(true);
+
         readyButton.SetActive(false);
         watchButton.SetActive(false);
-        if (PhotonNetwork.IsMasterClient)
-        {
-            startButton.SetActive(true);
-            scriptScroll.SetActive(true);
-        }
     }
     public void ReadyButton()
     {
@@ -302,12 +301,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         localPlayer.transform.localPosition = new Vector2(0, 0);
         Camera.main.GetComponent<CameraFollow>().SetTarget(localPlayer);
 
+        //now all players can move
+        GM_PhotonView.RPC("SetPlayerMove", RpcTarget.All, true);
+
+        if (PhotonNetwork.IsMasterClient)
+            startButton.SetActive(true);
+
         readyButton.SetActive(false);
         watchButton.SetActive(false);
-        if (PhotonNetwork.IsMasterClient)
-        {
-            scriptScroll.SetActive(true);
-        }
     }
     public void StartButton()
     {
@@ -316,26 +317,29 @@ public class GameManager : MonoBehaviourPunCallbacks
             Debug.Log("game data has not been download!");
             return;
         }
-        if(isDownloadCompelete==false)
+        if(isDownloadCompelete == false)
         {
             Debug.Log("game data downloading");
             return;
         }
+
+        //instantiate players
+        List<GameCharacter> characters = new List<GameCharacter>(gameData.character);
+        GameObject[] playerObj = GameObject.FindGameObjectsWithTag("Player");
+        if (playerObj.Length != characters.Count)
+        {
+            Debug.LogError("Incorrect Number of Players!");
+            return;
+        }
+
         if (PhotonNetwork.IsMasterClient)
         {
             finishButton.SetActive(true);
         }
 
         startButton.SetActive(false);
+        InitializeScene();
 
-        //instantiate players
-        List<GameCharacter> characters = new List<GameCharacter>(gameData.character);
-        GameObject[] playerObj = GameObject.FindGameObjectsWithTag("Player");
-        if (playerObj.Length > characters.Count)
-        {
-            Debug.LogError("too many players!");
-            return;
-        }
         List<int> selectedIndex=new List<int>();
         for(int i=0;i<playerObj.Length;i++)
         {
@@ -346,14 +350,11 @@ public class GameManager : MonoBehaviourPunCallbacks
             selectedIndex.Add(index);
             playerObj[i].GetComponent<PlayerScript>().SetPlayerData(index);
         }
-        //now all players can move
-        GM_PhotonView.RPC("SetPlayerMove", RpcTarget.All, true);
 
         GM_PhotonView.RPC("RPCInitializedGame", RpcTarget.All);
 
         //instantiate GameStartFlag
         GameObject flag = PhotonNetwork.Instantiate("GameStartFlag", gameCanvas.transform.position, Quaternion.identity, 0);
-        flag.GetComponent<DataID>().SetGameDataId(gameDataID);
 
         //start count time
         timer.SetActive(true);
@@ -379,14 +380,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         LevelCompelete();
     }
 
-    /// <summary>
-    /// if click close button on end panel, call this method
-    /// </summary>
-    public void CloseEndPanel()
-    {
-
-    }
-
 
 
     #endregion
@@ -400,110 +393,30 @@ public class GameManager : MonoBehaviourPunCallbacks
         imageLink += ".png";
         return imageLink;
     }
-    public void DownLoadGameData(string ID)
-    {
-        gameDataID = ID;
-        GM_PhotonView.RPC("RPCDownloadGameData", RpcTarget.All, ID);
-    }
-    string GetGameDataLink(string ID)
-    {
-        return "https://api.dreamin.land/q_game/?id="+ID;
-    }
 
-    [PunRPC]
-    void RPCDownloadGameData(string ID)
+   
+    IEnumerator GetGameData()
     {
-        StartCoroutine(GetGameData(ID));
-        //TestGameData
-    }
+        var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, "GameData.json"));
+        UnityWebRequest www = UnityWebRequest.Get(uri);
+        yield return www.SendWebRequest();
 
-    //test method, for debug
-    void TestGameData()
-    {
-        //Manually remove double quotation marks
-        string gameDocStr = "\"game_doc\":";
-        string text = File.ReadAllText("Assets/JsonData/DebugData.json");
-        int index = text.IndexOf(gameDocStr) + gameDocStr.Length;
-        string substr = text.Substring(index);
-        string gameDataStr = substr.Substring(2, substr.Length - 2);
+        string gameDataStr = www.downloadHandler.text;
 
         //read and store in gameData
         gameData = JsonMapper.ToObject<GameData>(gameDataStr);
-        int playerCount = GameObject.FindGameObjectsWithTag("Player").Length;
-        if (playerCount >= int.Parse(gameData.players_num))
+        for (int i = 0; i < gameData.map.Count; i++)
         {
-            for (int i = 0; i < gameData.map.Count; i++)
+            string addr = gameData.map[i].background;
+            StartCoroutine(GetMapTexture(addr, i));
+
+            for (int j = 0; j < gameData.map[i].map_object.Count; j++)
             {
-                string addr = gameData.map[i].background;
-                StartCoroutine(GetMapTexture(addr, i));
-
-                for (int j = 0; j < gameData.map[i].map_object.Count; j++)
-                {
-                    string objAddr = gameData.map[i].map_object[j].image_link;
-                    StartCoroutine(GetObjectTexture(objAddr, i, j));
-                }
+                string objAddr = gameData.map[i].map_object[j].image_link;
+                StartCoroutine(GetObjectTexture(objAddr, i, j));
             }
-            StartCoroutine(WaitForDownloadCompelete());
-            scriptScroll.gameObject.SetActive(false);
         }
-        else
-        {
-            Debug.Log("not enough player for this script!\n " + gameData.character.Count);
-            scriptScroll.gameObject.SetActive(true);
-        }
-    }
-   
-    IEnumerator GetGameData(string ID)
-    {
-        string url = "https://api.dreamin.land/get_game_doc/";
-        UnityWebRequest webRequest = new UnityWebRequest(url, "POST");
-
-        Encoding encoding = Encoding.UTF8;
-        byte[] buffer = encoding.GetBytes("{\"id\":" + ID + "}");
-        webRequest.uploadHandler = new UploadHandlerRaw(buffer);
-        webRequest.downloadHandler = new DownloadHandlerBuffer();
-
-        yield return webRequest.SendWebRequest();
-
-        if (webRequest.result == UnityWebRequest.Result.ProtocolError || webRequest.result == UnityWebRequest.Result.ConnectionError)
-        {
-            Debug.LogError(webRequest.error + "\n" + webRequest.downloadHandler.text);
-        }
-        else
-        {
-            Debug.Log("get game data succcess!");
-#if UNITY_EDITOR
-            //Save a gamedata backup for debug
-            string savePath = "Assets/JsonData/GameData.json";
-            File.WriteAllText(savePath, Regex.Unescape(webRequest.downloadHandler.text));
-#endif
-        }
-
-        //read and store in gameData
-        ReceiveData d = JsonMapper.ToObject<ReceiveData>(webRequest.downloadHandler.text);
-        gameData = JsonMapper.ToObject<GameData>(d.game_doc);
-        int playerCount = GameObject.FindGameObjectsWithTag("Player").Length;
-        if (playerCount >= int.Parse(gameData.players_num))
-        {
-            for (int i = 0; i < gameData.map.Count; i++)
-            {
-                string addr = gameData.map[i].background;
-                StartCoroutine(GetMapTexture(addr, i));
-
-                for (int j = 0; j < gameData.map[i].map_object.Count; j++)
-                {
-                    string objAddr = gameData.map[i].map_object[j].image_link;
-                    StartCoroutine(GetObjectTexture(objAddr, i, j));
-                }
-            }
-            StartCoroutine(WaitForDownloadCompelete());
-            scriptScroll.gameObject.SetActive(false);
-        }
-        else
-        {
-            Debug.Log("not enough player for this script!\n " + gameData.character.Count);
-            scriptScroll.gameObject.SetActive(true);
-        }
+        StartCoroutine(WaitForDownloadCompelete());
     }
 
     IEnumerator GetMapTexture(string addr, int i)
@@ -562,11 +475,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         Debug.Log("Download Compelete!");
         isDownloadCompelete = true;
-        InitializeScene();
     }
 #endregion
 
-#region Count Time
+    #region Count Time
     private IEnumerator IECountTime;
     void StartCountTime(int t)
     {
