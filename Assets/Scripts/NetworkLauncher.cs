@@ -11,6 +11,12 @@ public class NetworkLauncher : MonoBehaviourPunCallbacks
 {
     public GameObject roomName;
     public GameObject region;
+    public GameObject message;
+
+    public void ChangeMessage(string m)
+    {
+        message.GetComponent<TMP_Text>().text = m;
+    }
 
     /// <summary>
     /// Connect to server

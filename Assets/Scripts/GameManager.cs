@@ -47,8 +47,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     public void Start()
     {
         GM_PhotonView = GetComponent<PhotonView>();
-        StartCoroutine(GetGameData());
-
         //check whether to join the game midway
         Invoke("TestIfGameStart", 1);
     }
@@ -394,17 +392,40 @@ public class GameManager : MonoBehaviourPunCallbacks
         return imageLink;
     }
 
-   
-    IEnumerator GetGameData()
+    public void DownloadData(string ID)
     {
-        var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, "GameData.json"));
-        UnityWebRequest www = UnityWebRequest.Get(uri);
-        yield return www.SendWebRequest();
+        StartCoroutine(GetGameData(ID));
+    }
+    IEnumerator GetGameData(string ID)
+    {
+        string url = "https://api.dreamin.land/get_game_doc/";
+        UnityWebRequest webRequest = new UnityWebRequest(url, "POST");
 
-        string gameDataStr = www.downloadHandler.text;
+        Encoding encoding = Encoding.UTF8;
+        byte[] buffer = encoding.GetBytes("{\"id\":" + ID + "}");
+        webRequest.uploadHandler = new UploadHandlerRaw(buffer);
+        webRequest.downloadHandler = new DownloadHandlerBuffer();
+
+        yield return webRequest.SendWebRequest();
+
+        if (webRequest.result == UnityWebRequest.Result.ProtocolError || webRequest.result == UnityWebRequest.Result.ConnectionError)
+        {
+            Debug.LogError(webRequest.error + "\n" + webRequest.downloadHandler.text);
+        }
+        else
+        {
+            Debug.Log("get game data succcess!");
+#if UNITY_EDITOR
+            //Save a gamedata backup for debug
+            string savePath = "Assets/JsonData/GameData.json";
+            File.WriteAllText(savePath, Regex.Unescape(webRequest.downloadHandler.text));
+#endif
+        }
 
         //read and store in gameData
-        gameData = JsonMapper.ToObject<GameData>(gameDataStr);
+        ReceiveData d = JsonMapper.ToObject<ReceiveData>(webRequest.downloadHandler.text);
+        gameData = JsonMapper.ToObject<GameData>(d.game_doc);
+
         for (int i = 0; i < gameData.map.Count; i++)
         {
             string addr = gameData.map[i].background;
