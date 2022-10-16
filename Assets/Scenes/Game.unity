@@ -5953,7 +5953,7 @@ MonoBehaviour:
   gameCanvas: {fileID: 796135693}
   objects: {fileID: 808633981}
   colliders: {fileID: 781080985}
-  playerPrefb: {fileID: 5704281589670969547, guid: 8d4fa97a1e7e5714b96d43cdbbee6ff0, type: 3}
+  playerPrefb: {fileID: 5704281589670969547, guid: c32ddaad5a368d24fbf77230606659f7, type: 3}
   objectPrefab: {fileID: 8558312213418970229, guid: aa8f93b75c258594d9c31ac297ec7420, type: 3}
   mapPrefab: {fileID: 8558312213418970229, guid: f5ce6f8b0a96f534a9aa2b0e6bafabc7, type: 3}
   colliderPrefab: {fileID: 3572219004395243366, guid: 3623b5caedd32db47bf60b0a6f8abaa3, type: 3}
