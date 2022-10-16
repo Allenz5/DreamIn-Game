@@ -49,6 +49,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         GM_PhotonView = GetComponent<PhotonView>();
         //check whether to join the game midway
         Invoke("TestIfGameStart", 1);
+
+        DownloadData(GameObject.Find("GameSettings").GetComponent<GameSettings>().GameScriptId);
     }
 
     /// <summary>
