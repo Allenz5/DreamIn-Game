@@ -81,6 +81,7 @@ public class ReceiveData
 {
     public string status;
     public int code;
+    public string summary;
     public string game_doc;
 }
 public class GameData
