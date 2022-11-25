@@ -11,7 +11,7 @@ public class ReceiveData
 {
     public string status;
     public int code;
-    public string game_desc;
+    public string summary;
     public string game_doc;
 }
 public class GameData
