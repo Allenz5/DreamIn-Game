@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         //check whether to join the game midway
         Invoke("TestIfGameStart", 1);
 
-        DownloadData("GameObject.Find(\"GameSettings\").GetComponent<GameSettings>().GameScriptId");
+        DownloadData(GameObject.Find("GameSettings").GetComponent<GameSettings>().GameScriptId);
     }
 
     /// <summary>
