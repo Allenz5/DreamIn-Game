@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using System.IO;
 using System.Text.RegularExpressions;
 using LitJson;
@@ -12,9 +14,6 @@ using System.Text;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
-    public GameObject readyButton;
-    public GameObject watchButton;
-    public GameObject startButton;
     public GameObject finishButton;
     public GameObject cluesButton;
     public GameObject gameCanvas;
@@ -34,6 +33,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text PlayerNameText;
     public TMP_Text EndText;
     public TMP_Text TimerText;
+    public TMP_Text MessageText;
 
     private PhotonView GM_PhotonView;
     public GameData gameData;
@@ -44,13 +44,60 @@ public class GameManager : MonoBehaviourPunCallbacks
     private int ColliderSize = 32;
     public int mapIndex = 0;
 
+
+    #region Network Launcher
+
+    public string roomName;
+    public string region;
+
+    public void GetRoomName(string r)
+    {
+        roomName = r;
+    }
+
+    public void GetRegion(string r)
+    {
+        region = r;
+    }
+
     public void Start()
+    {
+        MessageText.text = "Connecting to Master";
+        PhotonNetwork.PhotonServerSettings.AppSettings.FixedRegion = region;
+        PhotonNetwork.ConnectUsingSettings();
+    }
+
+    public override void OnConnectedToMaster()
+    {
+        MessageText.text = "Joining Room";
+        RoomOptions options = new RoomOptions { MaxPlayers = 10 };
+        PhotonNetwork.JoinOrCreateRoom(roomName, options, default);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        StartDownload();
+    }
+
+    #endregion
+
+    #region Get GameScriptID
+    public string gameScriptId;
+
+    public void GetGameScriptID(string m)
+    {
+        gameScriptId = m;
+    }
+
+    #endregion
+
+    #region Start Game
+    public void StartDownload()
     {
         GM_PhotonView = GetComponent<PhotonView>();
         //check whether to join the game midway
         Invoke("TestIfGameStart", 1);
-
-        DownloadData(GameObject.Find("GameSettings").GetComponent<GameSettings>().GameScriptId);
+        DownloadData(gameScriptId);
     }
 
     /// <summary>
@@ -62,14 +109,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         GameObject testflag = GameObject.FindGameObjectWithTag("GameStartFlag");
         if (testflag != null)//if so, only watch the game after downloading game data
         {
-            readyButton.SetActive(false);
-            watchButton.SetActive(true);
             InitializeScene();
-        }
-        else
-        {
-            readyButton.SetActive(true);
-            watchButton.SetActive(true);
         }
     }
     
@@ -275,7 +315,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         localPlayer.GetComponent<PlayerScript>().canMove = canMove;
     }
 
-    #region Button
+
+    /*
     public void WatchButton()
     {
         string playerName = "Player " + (int)Random.Range(1, 7);
@@ -294,7 +335,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         readyButton.SetActive(false);
         watchButton.SetActive(false);
     }
-    public void ReadyButton()
+    */
+
+    public void CreateCharacters()
     {
         string playerName = "Player " + (int)Random.Range(1, 7);
         localPlayer = PhotonNetwork.Instantiate(playerName, gameCanvas.transform.position, Quaternion.identity, 0);
@@ -303,14 +346,26 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         //now all players can move
         GM_PhotonView.RPC("SetPlayerMove", RpcTarget.All, true);
-
-        if (PhotonNetwork.IsMasterClient)
-            startButton.SetActive(true);
-
-        readyButton.SetActive(false);
-        watchButton.SetActive(false);
+        MessageText.text = "Creating Character";
+        StartCoroutine(WaitForOtherPlayers());
     }
-    public void StartButton()
+
+    IEnumerator WaitForOtherPlayers()
+    {
+        MessageText.text = "Waiting For Others";
+        List<GameCharacter> characters = new List<GameCharacter>(gameData.character);
+        while (true)
+        {
+            GameObject[] playerObj = GameObject.FindGameObjectsWithTag("Player");
+            if (playerObj.Length == characters.Count) break;
+            yield return null;
+        }
+        StartGame();
+    }
+
+
+
+    public void StartGame()
     {
         if (gameData == null)
         {
@@ -326,18 +381,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         //instantiate players
         List<GameCharacter> characters = new List<GameCharacter>(gameData.character);
         GameObject[] playerObj = GameObject.FindGameObjectsWithTag("Player");
-        if (playerObj.Length != characters.Count)
-        {
-            Debug.LogError("Incorrect Number of Players!");
-            return;
-        }
 
         if (PhotonNetwork.IsMasterClient)
         {
             finishButton.SetActive(true);
         }
-
-        startButton.SetActive(false);
         InitializeScene();
 
         List<int> selectedIndex=new List<int>();
@@ -359,7 +407,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         //start count time
         timer.SetActive(true);
         StartCountTime(countTime);
+
+        MessageText.gameObject.SetActive(false);
     }
+    #endregion
+
+    #region Button
     public void EndLevelButton()
     {
         if (mapIndex == -1)
@@ -396,13 +449,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void DownloadData(string ID)
     {
+        MessageText.text = "Downloading Data";
         StartCoroutine(GetGameData(ID));
     }
+
     IEnumerator GetGameData(string ID)
     {
         string url = "https://api.dreamin.land/get_game_doc/";
         UnityWebRequest webRequest = new UnityWebRequest(url, "POST");
-
         Encoding encoding = Encoding.UTF8;
         byte[] buffer = encoding.GetBytes("{\"id\":" + ID + "}");
         webRequest.uploadHandler = new UploadHandlerRaw(buffer);
@@ -479,6 +533,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             gameData.map[i].map_object[j].objTexture = t;
         }
     }
+
     IEnumerator WaitForDownloadCompelete()
     {
         while (true)
@@ -498,6 +553,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         Debug.Log("Download Compelete!");
         isDownloadCompelete = true;
+        CreateCharacters();
     }
 #endregion
 
