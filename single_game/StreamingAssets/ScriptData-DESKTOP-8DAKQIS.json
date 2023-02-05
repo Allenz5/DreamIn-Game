@@ -1,0 +1,23 @@
+{
+  "status": "OK",
+  "infos": [
+    {
+      "id": 1,
+      "name": "What will Elon Buy",
+      "players_num": 1,
+      "status": 1
+    },
+    {
+      "id": 2,
+      "name": "Who petrified Snape",
+      "players_num": 1,
+      "status": 1
+    },
+    {
+      "id": 3,
+      "name": "Find the Last Jedi",
+      "players_num": 1,
+      "status": 1
+    }
+  ]
+}

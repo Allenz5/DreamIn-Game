@@ -8472,7 +8472,11 @@ MonoBehaviour:
   gameCanvas: {fileID: 796135693}
   objects: {fileID: 808633981}
   colliders: {fileID: 781080985}
+<<<<<<< HEAD
   playerPrefb: {fileID: 7291306577805744503, guid: 15214962415245c4d9ce93d563c1f28f, type: 3}
+=======
+  playerPrefb: {fileID: 5704281589670969547, guid: c32ddaad5a368d24fbf77230606659f7, type: 3}
+>>>>>>> ecd685a23faee0590e36c70ce6c98cbe330a61f8
   objectPrefab: {fileID: 8558312213418970229, guid: aa8f93b75c258594d9c31ac297ec7420, type: 3}
   mapPrefab: {fileID: 8558312213418970229, guid: f5ce6f8b0a96f534a9aa2b0e6bafabc7, type: 3}
   colliderPrefab: {fileID: 3572219004395243366, guid: 3623b5caedd32db47bf60b0a6f8abaa3, type: 3}

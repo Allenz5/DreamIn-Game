@@ -223,14 +223,22 @@ GameObject:
   - component: {fileID: 7598725858096006707}
   - component: {fileID: 5704281589670969559}
   - component: {fileID: 5704281589670969556}
+<<<<<<< HEAD
+=======
+  - component: {fileID: 5898787192002990105}
+  - component: {fileID: 5898787192002990118}
+>>>>>>> ecd685a23faee0590e36c70ce6c98cbe330a61f8
   - component: {fileID: 5704281589670969558}
   - component: {fileID: 5898787192002990119}
   - component: {fileID: 8804682806124496994}
   - component: {fileID: 5391969475524589791}
   - component: {fileID: 2216211600444976439}
   - component: {fileID: 3505863101141156905}
+<<<<<<< HEAD
   - component: {fileID: 4986780218171387}
   - component: {fileID: 8857038774139574570}
+=======
+>>>>>>> ecd685a23faee0590e36c70ce6c98cbe330a61f8
   m_Layer: 6
   m_Name: Player 8
   m_TagString: Player
@@ -307,7 +315,11 @@ Animator:
   m_GameObject: {fileID: 5704281589670969547}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
+<<<<<<< HEAD
   m_Controller: {fileID: 9100000, guid: 16f048d7354c44aa7b2ab4f130457ddc, type: 2}
+=======
+  m_Controller: {fileID: 9100000, guid: 585329656a29ce24f86e4e1fa174f5c4, type: 2}
+>>>>>>> ecd685a23faee0590e36c70ce6c98cbe330a61f8
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -363,6 +375,39 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 25, y: 40}
   m_EdgeRadius: 0
+<<<<<<< HEAD
+=======
+--- !u!114 &5898787192002990105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5704281589670969547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 046a7347a93740943a8bd395bf81e297, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startListenOnAwake: 1
+--- !u!114 &5898787192002990118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5704281589670969547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 871db227761936c4982e00c060f15de6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _microphoneDevice: 
+  _averageVoiceLevel: 0
+  _isMuted: 0
+  recording: 0
+  debugEcho: 0
+>>>>>>> ecd685a23faee0590e36c70ce6c98cbe330a61f8
 --- !u!114 &5704281589670969558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -470,6 +515,7 @@ MonoBehaviour:
   - Type: 4
     SynchronizeType: 0
     Name: right
+<<<<<<< HEAD
   - Type: 1
     SynchronizeType: 0
     Name: blend
@@ -506,3 +552,8 @@ MonoBehaviour:
   _isMuted: 0
   recording: 0
   debugEcho: 0
+=======
+  m_SynchronizeLayers:
+  - SynchronizeType: 2
+    LayerIndex: 0
+>>>>>>> ecd685a23faee0590e36c70ce6c98cbe330a61f8
