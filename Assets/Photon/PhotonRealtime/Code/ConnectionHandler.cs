@@ -99,6 +99,7 @@ namespace Photon.Realtime
         {
             if (this.ApplyDontDestroyOnLoad)
             {
+                UnityEngine.Debug.Log(this.gameObject);
                 DontDestroyOnLoad(this.gameObject);
             }
         }

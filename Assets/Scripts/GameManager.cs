@@ -30,7 +30,6 @@ public class GameManager :MonoBehaviour
     public GameObject currentMap;
     public GameObject cluePanel;
     public GameObject LastTipPanel;
-    public GameObject ThankPanel;
 
     public TMP_Text PlayerInfoText;
     public TMP_Text PlayerNameText;
@@ -43,12 +42,21 @@ public class GameManager :MonoBehaviour
 
     private int countTime = 0;
     private bool isDownloadCompelete=false;
-    private int ColliderSize = 32;
+    private int ColliderSize = 24;
     public int mapIndex = 0;
 
     public void Start()
     {    
-        
+        localPlayer = GameObject.Instantiate<GameObject>(playerPrefb, gameCanvas.transform.position, Quaternion.identity);
+        Debug.Log(localPlayer);
+        localPlayer.transform.parent = gameCanvas.transform;
+        //localPlayer=GameObject.Instantiate<GameObject>(playerName, gameCanvas.transform.position, Quaternion.identity);
+        localPlayer.transform.localPosition = new Vector2(0, 50);
+        Camera.main.GetComponent<CameraFollow>().SetTarget(localPlayer);
+
+        readyButton.SetActive(false);
+        scriptScroll.SetActive(true);
+        Debug.Log(localPlayer);
     }
 
 void InitializedGame()
@@ -111,7 +119,7 @@ void InitializedGame()
             float w = gameData.map[index].mapTexture.width;
             float h = gameData.map[index].mapTexture.height;
 
-            map.GetComponent<RectTransform>().sizeDelta = new Vector2(w, h);
+            map.GetComponent<RectTransform>().sizeDelta = new Vector2(w*0.75f, h*0.75f);
             map.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             map.transform.SetSiblingIndex(0);
             map.GetComponent<Image>().sprite = Sprite.Create(gameData.map[index].mapTexture, new Rect(0, 0, w, h), new Vector2(0, 0));
@@ -130,8 +138,8 @@ void InitializedGame()
 
                 float w = gameData.map[index].map_object[i].objTexture.width;
                 float h = gameData.map[index].map_object[i].objTexture.height;
-                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(w, h);
                 obj.GetComponent<Image>().sprite = Sprite.Create(gameData.map[index].map_object[i].objTexture, new Rect(0, 0, w, h), new Vector2(0, 0));
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(w*0.75f, h*0.75f);
                 obj.GetComponent<Object>().objectInfoPanel = objectInfoPanel;
                 obj.GetComponent<Object>().SetInfo(gameData.map[index].map_object[i].message);
                 obj.GetComponent<Object>().GM = this;
@@ -143,8 +151,8 @@ void InitializedGame()
 
         //update collision
         {
-            float w = gameData.map[index].mapTexture.width / 2;
-            float h = gameData.map[index].mapTexture.height / 2;
+            float w = gameData.map[index].mapTexture.width * 0.75f/ 2;
+            float h = gameData.map[index].mapTexture.height *0.75f / 2;
             string[] rows = gameData.map[index].collide_map.Split(';');
             for (int i = 0; i < rows.Length; i++)
             {
@@ -152,8 +160,8 @@ void InitializedGame()
                 for (int j = 0; j < cols.Length - 1; j++)
                 {
                     GameObject obj = Instantiate(colliderPrefab, new Vector2(0, 0), Quaternion.identity, colliders.transform);
-                    obj.transform.localPosition = new Vector3(-w + int.Parse(cols[j]) * ColliderSize + ColliderSize / 2, h - i * ColliderSize - ColliderSize / 2, 0);
-
+                    obj.GetComponent<RectTransform>().sizeDelta = new Vector2(ColliderSize, ColliderSize);
+                    obj.transform.localPosition = new Vector3(-w + int.Parse(cols[j]) * ColliderSize + ColliderSize / 2, h- i * ColliderSize - ColliderSize / 2, 0);
                     obj.transform.SetParent(colliders.transform);
                 }
             }
@@ -175,7 +183,7 @@ void InitializedGame()
             //Set and show end text
             EndText.text = gameData.map[mapIndex-1].end;
             EndText.transform.parent.parent.gameObject.SetActive(true);
-            
+
             mapIndex = -1;
         }
         else
@@ -240,7 +248,7 @@ void InitializedGame()
         localPlayer = GameObject.Instantiate<GameObject>(playerPrefb, gameCanvas.transform.position, Quaternion.identity);
         localPlayer.transform.position = gameCanvas.transform.position;
         //localPlayer=GameObject.Instantiate<GameObject>(playerName, gameCanvas.transform.position, Quaternion.identity);
-        localPlayer.transform.localPosition = new Vector2(0, 0);
+        localPlayer.transform.localPosition = new Vector2(0, 50);
         Camera.main.GetComponent<CameraFollow>().SetTarget(localPlayer);
 
         readyButton.SetActive(false);
@@ -315,10 +323,7 @@ void InitializedGame()
     /// </summary>
     public void CloseEndPanel()
     {
-        if(mapIndex==-1)
-        {
-            ThankPanel.gameObject.SetActive(true);
-        }
+
     }
 
 
@@ -354,13 +359,12 @@ void InitializedGame()
         //int index = text.IndexOf(gameDocStr) + gameDocStr.Length;
         //string substr = text.Substring(index);
         //string gameDataStr = substr.Substring(2, substr.Length - 2);
-
-        var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, "Data" + ID + ".json"));
+        var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, ID + ".json"));
         UnityWebRequest www = UnityWebRequest.Get(uri);
         yield return www.SendWebRequest();
 
         string gameDataStr = www.downloadHandler.text;
-
+        Debug.Log(www.downloadHandler.text);
         //read and store in gameData
         gameData = JsonMapper.ToObject<GameData>(gameDataStr);
         int playerCount = GameObject.FindGameObjectsWithTag("Player").Length;
@@ -369,12 +373,12 @@ void InitializedGame()
             for (int i = 0; i < gameData.map.Count; i++)
             {
                 string addr = gameData.map[i].background;
-                StartCoroutine(GetMapTexture(addr, i));
+                GetMapTexture(addr, i);
 
                 for (int j = 0; j < gameData.map[i].map_object.Count; j++)
                 {
                     string objAddr = gameData.map[i].map_object[j].image_link;
-                    StartCoroutine(GetObjectTexture(objAddr, i, j));
+                    GetObjectTexture(objAddr, i, j);
                 }
             }
             StartCoroutine(WaitForDownloadCompelete());
@@ -388,8 +392,9 @@ void InitializedGame()
     }
   
 
-    IEnumerator GetMapTexture(string addr, int i)
+    public void GetMapTexture(string addr, int i)
     {
+        /*
         string imageLink = GetImageLink(addr);
 
         UnityWebRequest www = UnityWebRequestTexture.GetTexture(imageLink);
@@ -405,10 +410,16 @@ void InitializedGame()
             t.filterMode = FilterMode.Point;
             gameData.map[i].mapTexture = t;
         }
+        */
+        Texture2D t= Resources.Load<Texture2D>(addr);
+        t.filterMode = FilterMode.Point;
+        gameData.map[i].mapTexture = t;
+        
     }
 
-    IEnumerator GetObjectTexture(string addr, int i, int j)
+    public void GetObjectTexture(string addr, int i, int j)
     {
+        /*
         string imageLink = GetImageLink(addr);
 
         UnityWebRequest www = UnityWebRequestTexture.GetTexture(imageLink);
@@ -424,6 +435,11 @@ void InitializedGame()
             t.filterMode = FilterMode.Point;
             gameData.map[i].map_object[j].objTexture = t;
         }
+        */
+
+        Texture2D t= Resources.Load<Texture2D>(addr);
+        t.filterMode = FilterMode.Point;
+        gameData.map[i].map_object[j].objTexture = t;
     }
     IEnumerator WaitForDownloadCompelete()
     {

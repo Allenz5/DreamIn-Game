@@ -149,14 +149,14 @@ public class SelectPanel : MonoBehaviour
         //CreateScriptItem(sj.infos);
         story1.transform.GetChild(0).GetComponent<TMP_Text>().text = sj.infos[0].name;
         story1.transform.GetChild(1).GetComponent<TMP_Text>().text = sj.infos[0].players_num.ToString();
-        story1.GetComponent<ScriptItem>().gameID = sj.infos[0].id.ToString();
+        story1.GetComponent<ScriptItem>().gameID = sj.infos[0].name;
 
         story2.transform.GetChild(0).GetComponent<TMP_Text>().text = sj.infos[1].name;
         story2.transform.GetChild(1).GetComponent<TMP_Text>().text = sj.infos[1].players_num.ToString();
-        story2.GetComponent<ScriptItem>().gameID = sj.infos[1].id.ToString();
+        story2.GetComponent<ScriptItem>().gameID = sj.infos[1].name;
 
         story3.transform.GetChild(0).GetComponent<TMP_Text>().text = sj.infos[2].name;
         story3.transform.GetChild(1).GetComponent<TMP_Text>().text = sj.infos[2].players_num.ToString();
-        story3.GetComponent<ScriptItem>().gameID = sj.infos[2].id.ToString();
+        story3.GetComponent<ScriptItem>().gameID = sj.infos[2].name;
     }
 }
