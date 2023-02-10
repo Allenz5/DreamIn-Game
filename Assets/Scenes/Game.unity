@@ -4025,9 +4025,9 @@ MonoBehaviour:
   TimerText: {fileID: 1194231370}
   MessageText: {fileID: 589924828}
   mapIndex: 0
-  roomName: 123
-  region: us
-  gameScriptId: 78
+  roomName: 
+  region: 
+  gameScriptId: 
 --- !u!4 &1976860448
 Transform:
   m_ObjectHideFlags: 0
