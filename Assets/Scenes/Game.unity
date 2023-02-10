@@ -4025,9 +4025,9 @@ MonoBehaviour:
   TimerText: {fileID: 1194231370}
   MessageText: {fileID: 589924828}
   mapIndex: 0
-  roomName: 
-  region: 
-  gameScriptId: 
+  roomName: 123
+  region: us
+  gameScriptId: 78
 --- !u!4 &1976860448
 Transform:
   m_ObjectHideFlags: 0
@@ -4762,7 +4762,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5421377605786598675, guid: 1924ac8df5b7c5c44b1ce86d35f76207, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -61
+      value: -87.7
       objectReference: {fileID: 0}
     - target: {fileID: 5421377605786598675, guid: 1924ac8df5b7c5c44b1ce86d35f76207, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
