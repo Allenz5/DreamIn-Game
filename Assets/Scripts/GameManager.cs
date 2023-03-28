@@ -9,6 +9,11 @@ using LitJson;
 using TMPro;
 using System.Text;
 
+public enum GameType{
+    deductive,
+    adventure
+}
+
 //single game version
 public class GameManager :MonoBehaviour
 {
@@ -24,6 +29,7 @@ public class GameManager :MonoBehaviour
     public GameObject objectPrefab;
     public GameObject mapPrefab;
     public GameObject colliderPrefab;
+    public GameObject NPCPrefab;
     public GameObject questionPanel;
     public GameObject objectInfoPanel;
     public GameObject timer;
@@ -39,17 +45,23 @@ public class GameManager :MonoBehaviour
     public GameData gameData;
     private string gameDataID;
     private GameObject localPlayer;
+    
 
     private int countTime = 0;
     private bool isDownloadCompelete=false;
     private int ColliderSize = 24;
     public int mapIndex = 0;
 
+    public GameType type;
+
+    public static GameManager instance;
+
     public void Start()
     {    
         localPlayer = GameObject.Instantiate<GameObject>(playerPrefb, gameCanvas.transform.position, Quaternion.identity);
         Debug.Log(localPlayer);
         localPlayer.transform.parent = gameCanvas.transform;
+        localPlayer.transform.localScale =  new Vector3(1, 1, 1);
         //localPlayer=GameObject.Instantiate<GameObject>(playerName, gameCanvas.transform.position, Quaternion.identity);
         localPlayer.transform.localPosition = new Vector2(0, 50);
         Camera.main.GetComponent<CameraFollow>().SetTarget(localPlayer);
@@ -57,6 +69,16 @@ public class GameManager :MonoBehaviour
         readyButton.SetActive(false);
         scriptScroll.SetActive(true);
         Debug.Log(localPlayer);
+
+
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else if(instance != null)
+        {
+            Destroy(gameObject);
+        }
     }
 
 void InitializedGame()
@@ -149,6 +171,29 @@ void InitializedGame()
             }
         }
 
+        {
+            if(gameData.map[index].NPC != null){
+
+            
+                GameObject npc = Instantiate(NPCPrefab, new Vector2(0, 0), Quaternion.identity, objects.transform);
+
+                npc.transform.SetParent(gameCanvas.transform);
+                npc.transform.localScale = new Vector3(1, 1, 1);
+
+                float w = gameData.map[index].NPC.objTexture.width;
+                float h = gameData.map[index].NPC.objTexture.height;
+                npc.GetComponent<Image>().sprite = Sprite.Create(gameData.map[index].NPC.objTexture, new Rect(0, 0, w, h), new Vector2(0, 0));
+                npc.GetComponent<RectTransform>().sizeDelta = new Vector2(64, 64);
+                npc.GetComponent<NPC>().SetName(gameData.map[index].NPC.name);
+                npc.transform.localPosition = gameData.map[index].NPC.GetPosition();
+
+                npc.transform.SetParent(objects.transform);
+                npc.GetComponent<NPC>().SetPlayerData(gameData.map[index].NPC);
+                BattleManager.instance.SetPlayers(localPlayer, npc);
+            }
+
+        }
+
         //update collision
         {
             float w = gameData.map[index].mapTexture.width * 0.75f/ 2;
@@ -174,7 +219,7 @@ void InitializedGame()
     /// <summary>
     /// Call this method after question part
     /// </summary>
-    void LevelCompelete()
+    public void LevelCompelete()
     {
         mapIndex++;
         //if this is the last map
@@ -193,10 +238,16 @@ void InitializedGame()
             EndText.transform.parent.parent.gameObject.SetActive(true);
 
             UpdateMap(mapIndex);
-            StartCountTime(countTime);//restart count time
-
+            Debug.Log(type);
+            if(type == GameType.deductive){
+                timer.SetActive(true);
+                StartCountTime(countTime);//restart count time
+            } else{
+                timer.SetActive(false);
+            }
             //reset player's position
             localPlayer.transform.localPosition = Vector2.zero;
+            localPlayer.GetComponent<AdvPlayer>().Reset();
         }
     }
 
@@ -247,6 +298,7 @@ void InitializedGame()
     {
         localPlayer = GameObject.Instantiate<GameObject>(playerPrefb, gameCanvas.transform.position, Quaternion.identity);
         localPlayer.transform.position = gameCanvas.transform.position;
+        localPlayer.transform.localScale =  new Vector3(1, 1, 1);
         //localPlayer=GameObject.Instantiate<GameObject>(playerName, gameCanvas.transform.position, Quaternion.identity);
         localPlayer.transform.localPosition = new Vector2(0, 50);
         Camera.main.GetComponent<CameraFollow>().SetTarget(localPlayer);
@@ -295,8 +347,14 @@ void InitializedGame()
         InitializedGame();
 
         //start count time
-        timer.SetActive(true);
-        StartCountTime(countTime);
+        if(type == GameType.deductive){
+            timer.SetActive(true);
+            StartCountTime(countTime);//restart count time
+            cluesButton.SetActive(false);
+        } else{
+             timer.SetActive(false);
+             cluesButton.SetActive(false);
+        }
     }
     public void EndLevelButton()
     {
@@ -362,7 +420,6 @@ void InitializedGame()
         var uri = new System.Uri(Path.Combine(Application.streamingAssetsPath, ID + ".json"));
         UnityWebRequest www = UnityWebRequest.Get(uri);
         yield return www.SendWebRequest();
-
         string gameDataStr = www.downloadHandler.text;
         Debug.Log(www.downloadHandler.text);
         //read and store in gameData
@@ -370,6 +427,11 @@ void InitializedGame()
         int playerCount = GameObject.FindGameObjectsWithTag("Player").Length;
         if (playerCount >= int.Parse(gameData.players_num))
         {
+            if(gameData.type == "adventure"){
+                type = GameType.adventure;
+            } else{
+                type = GameType.deductive;
+            }
             for (int i = 0; i < gameData.map.Count; i++)
             {
                 string addr = gameData.map[i].background;
@@ -379,6 +441,11 @@ void InitializedGame()
                 {
                     string objAddr = gameData.map[i].map_object[j].image_link;
                     GetObjectTexture(objAddr, i, j);
+
+                }
+                if (gameData.map[i].NPC != null){
+                    string objAddr = gameData.map[i].NPC.image_link;
+                    GetNPCTexture(objAddr, i);
                 }
             }
             StartCoroutine(WaitForDownloadCompelete());
@@ -441,6 +508,14 @@ void InitializedGame()
         t.filterMode = FilterMode.Point;
         gameData.map[i].map_object[j].objTexture = t;
     }
+    public void GetNPCTexture(string addr, int i)
+    {
+        Texture2D t= Resources.Load<Texture2D>(addr);
+        t.filterMode = FilterMode.Point;
+        gameData.map[i].NPC.objTexture = t;
+    }
+
+
     IEnumerator WaitForDownloadCompelete()
     {
         while (true)

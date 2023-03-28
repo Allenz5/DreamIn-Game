@@ -1,0 +1,69 @@
+{
+  "_id": "62e166fbae8e7cc82dd20b06",
+  "name": "CS101 Adventure",
+  "players_num": "1",
+  "type" : "adventure",
+  "map": [
+    {
+      "title": "First",
+      "duration": "20",
+      "end": "you beat a TA",
+      "question": "Who petrified professor Snape? ",
+      "answers": [ "Harry Potter", "Ron Weasley", "Hermione Granger", "Nevile Longbottom", "Draco Malfoy"],
+      "background": "Maps/Indoor/l1",
+      "collide_map": "",
+      "map_object": [],
+      "NPC" : {"name" : "John-TA", "health" : 120, "image_link": "NPC/TA1","position": "[-190,200,0]",
+                "abilities" : [{"desc" : "Quiz Frustration", "dmg" : 20, "maxPlay" : 5, "target" : "opponent", "effect": "damage"}, 
+                              {"desc" : "Grading Mistake", "dmg" : 30, "maxPlay" : 3, "target" : "opponent", "effect": "damage"},
+                              {"desc" : "Lecture Power Nap ", "dmg" : 50, "maxPlay" : 5, "target" : "self", "effect": "cure"},
+                              {"desc" : "Code Review", "dmg" : 10, "maxPlay" : 10, "target" : "opponent", "effect": "damage"}               
+                              ]}
+    }, 
+    {
+      "title": "First",
+      "duration": "20",
+      "end": "you beat a TA",
+      "question": "Who petrified professor Snape? ",
+      "answers": [ "Harry Potter", "Ron Weasley", "Hermione Granger", "Nevile Longbottom", "Draco Malfoy"],
+      "background": "Maps/Indoor/l1",
+      "collide_map": "",
+      "map_object": [],
+      "NPC" : {"name" : "Abhinav-Senior TA", "health" : 200, "image_link": "NPC/TA2","position": "[-190,200,0]", 
+                "abilities" : [{"desc" : "Algorithm Ambush", "dmg" : 40, "maxPlay" : 5, "target" : "opponent", "effect": "damage"}, 
+                              {"desc" : "Project Panic", "dmg" : 60, "maxPlay" : 5, "target" : "opponent", "effect": "damage"},
+                              {"desc" : "Office Hours Recovery ", "dmg" : 80, "maxPlay" : 5, "target" : "self", "effect": "cure"},
+                              {"desc" : "Optimized Slap", "dmg" : 30, "maxPlay" : 5, "target" : "opponent", "effect": "damage"}               
+                              ]}
+    }, 
+    {
+      "title": "First",
+      "duration": "20",
+      "end": "you beat a TA",
+      "question": "Who petrified professor Snape? ",
+      "answers": [ "Harry Potter", "Ron Weasley", "Hermione Granger", "Nevile Longbottom", "Draco Malfoy"],
+      "background": "Maps/Indoor/l1",
+      "collide_map": "",
+      "map_object": [],
+      "NPC" : {"name" : "Andy-Professor", "health" : 300, "image_link": "NPC/Prof","position": "[-190,200,0]",
+                "abilities" : [{"desc" : "Theory Assault", "dmg" : 60, "maxPlay" : 5, "target" : "opponent", "effect": "damage"}, 
+                              {"desc" : "Exam Explosion", "dmg" : 90, "maxPlay" : 3, "target" : "opponent", "effect": "damage"},
+                              {"desc" : "Research Sabbatical", "dmg" : 150, "maxPlay" : 5, "target" : "self", "effect": "cure"},
+                              {"desc" : "Recursive Strike", "dmg" : 40, "maxPlay" : 10, "target" : "opponent", "effect": "damage"}               
+                              ]}
+              
+    }
+  ],
+  "character": [
+    {
+      "name": "CS101 student",
+      "background": "You are a CS101 student. Try to overcome all the difficulties and \"beat\" that course.",
+      "health" : 250,
+      "abilities" : [{"desc" : "Debug", "dmg" : 35, "maxPlay" : 5, "target" : "opponent", "effect": "damage"}, 
+                    {"desc" : "Syntax Blast", "dmg" : 55, "maxPlay" : 3, "target" : "opponent", "effect": "damage"},
+                    {"desc" : "Energy Drink", "dmg" : 120, "maxPlay" : 5, "target" : "self", "effect": "cure"},
+                    {"desc" : "Keyboard Smash", "dmg" : 25, "maxPlay" : 10, "target" : "opponent", "effect": "damage"}               
+      ]
+    }
+  ]
+}

@@ -13,6 +13,9 @@ public class PlayerScript : MonoBehaviour
     public TMP_Text nameText;
     public GameObject nameTextObj;
 
+    // adventure player property
+    public AdvPlayer advPlayer; 
+
     internal string playerName;
     internal bool canMove=false;
     private int playerIndex;
@@ -26,21 +29,27 @@ public class PlayerScript : MonoBehaviour
     {
         body = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        advPlayer = GetComponent<AdvPlayer>();
 
         //Intiate playername Panel and let it follow the player
-        GameObject t = GameObject.Instantiate(nameTextObj, transform.position + new Vector3(0, 40, 0), Quaternion.identity);
+        /*
+        GameObject t = GameObject.Instantiate(nameTextObj, transform.position + new Vector3(0, 60, 0), Quaternion.identity);
         GameObject canvas = GameObject.Find("GameCanvas");
         t.transform.SetParent(canvas.transform);
         t.transform.localScale = new Vector3(1, 1, 1);
         t.GetComponent<TextFollow>().SetTarget(gameObject);
         nameText = t.GetComponent<TMP_Text>();
+        */
     }
     /// <summary>
     /// player aniamtions control
     /// </summary>
     private void FixedUpdate()
     {
-        if (!canMove) return;
+        if (!canMove){
+            animator.SetBool("down", false);
+            return;
+        }
 
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
@@ -88,6 +97,25 @@ public class PlayerScript : MonoBehaviour
             animator.SetBool("right", false);
         }
     }
+
+    public void Freeze(){
+        animator.SetBool("up", false);
+        animator.SetBool("left", false);
+        animator.SetBool("right", false);
+        animator.SetBool("down", true);
+        canMove = false;
+        body.velocity = new Vector2(0, 0);
+    }
+
+    public void UnFreeze(){
+        animator.SetBool("up", false);
+        animator.SetBool("left", false);
+        animator.SetBool("right", false);
+        animator.SetBool("down", false);
+        canMove = true;
+        body.velocity = new Vector2(0, 0);
+    }
+
     /// <summary>
     /// Configure the player according to game data
     /// </summary>
@@ -99,6 +127,7 @@ public class PlayerScript : MonoBehaviour
 
         playerIndex = index;
         SetPlayerName(gameData.character[playerIndex].name);
+        advPlayer.SetPlayerData(gameData.character[playerIndex]);
     }
 
     void SetPlayerName(string name)
